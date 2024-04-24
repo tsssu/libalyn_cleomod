@@ -27,6 +27,7 @@ BEGIN_DEPLIST()
     ADD_DEPENDENCY_VER(net.rusjj.aml, 1.2.1)
 END_DEPLIST()
 
+/*
 inline size_t __strlen(const char *str)
 {
     const char* s = str;
@@ -56,6 +57,7 @@ inline void __pathback(char *str)
     }
     if(i > 0) str[i] = 0;
 }
+*/
 
 // Pointers
 void* pCLEO;
@@ -249,7 +251,7 @@ extern "C" void OnModPreLoad()
 
     char tmp[256];
     snprintf(tmp, sizeof(tmp), "%s", pCfgCLEOLocation->GetString());
-    __pathback(tmp);
+    //__pathback(tmp);
 
     setenv("EXTERNAL_STORAGE", tmp, 1);
     snprintf(tmp, sizeof(tmp), "%s/cleo", tmp);
