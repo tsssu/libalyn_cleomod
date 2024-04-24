@@ -257,7 +257,15 @@ extern "C" void OnModPreLoad()
 
     aml->Unprot(nCLEOAddr + 0x146A9, 11);
     uintptr_t cleoDir = nCLEOAddr + 0x146A9;
-    *(char*)(cleoDir + 8) = '\0';
+    *(char*)(cleoDir + 3) = '\0';
+
+    aml->Unprot(nCLEOAddr + 0x14C2C, 16);
+    uintptr_t cleoLog = nCLEOAddr + 0x14C2C;
+    *(char*)(cleoLog + 7) = '.';
+    *(char*)(cleoLog + 8) = 'l';
+    *(char*)(cleoLog + 9) = 'o';
+    *(char*)(cleoLog + 10) = 'g';
+    *(char*)(cleoLog + 11) = '\0';
 
     if(!pCfgCLEORedArrow->GetBool())
         aml->PlaceNOP(nCLEOAddr + 0xBD82, 2);
