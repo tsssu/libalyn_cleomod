@@ -252,7 +252,7 @@ extern "C" void OnModPreLoad()
     __pathback(tmp);
     //setenv("EXTERNAL_STORAGE", tmp, 1);
     mkdir(tmp, 0777);
-    logger->info(pCfgCLEOLocation->GetString());
+    logger->Info(pCfgCLEOLocation->GetString());
 
 
     aml->Unprot(nCLEOAddr + 0x146A9, 11);
