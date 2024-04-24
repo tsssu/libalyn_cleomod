@@ -301,7 +301,7 @@ extern "C" void OnModPreLoad()
         //__pathback(tmp);
         //setenv("EXTERNAL_STORAGE", tmp, 1);
         snprintf(tmp, sizeof(tmp), "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
-        __pathback(tmp)
+        __pathback(tmp);
         setenv("EXTERNAL_STORAGE", tmp, 1);
         mkdir(tmp, 0777);
         
