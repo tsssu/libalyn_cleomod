@@ -19,10 +19,6 @@ cleo_addon_ifs_t cleo_addon_ifs;
 uint16_t FreeScriptAddonInfoId = 1; // 0 is "not assigned" (used for dumbo scripts without that info)
 ScriptAddonInfo ScriptAddonInfosStorage[0x400];
 
-// SAUtils
-#include "isautils.h"
-ISAUtils* sautils = nullptr;
-
 // Size of array
 #define sizeofA(__aVar)  ((int)(sizeof(__aVar)/sizeof(__aVar[0])))
 

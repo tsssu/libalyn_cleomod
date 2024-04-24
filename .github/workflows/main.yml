@@ -2,9 +2,9 @@ name: AML Mod Compiler
 
 on:
   push:
-    branches: [ "RUSJJ_CLEO_MOD" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "RUSJJ_CLEO_MOD" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -25,11 +25,6 @@ jobs:
       run: |
         unzip ./AML_src.zip
         mv ./AndroidModLoader-main/mod ./mod
-
-    - name: Get SAUtils...
-      uses: wei/wget@v1
-      with:
-        args: -O ./isautils.h https://github.com/AndroidModLoader/SAUtils/raw/main/isautils.h
 
     - name: Install Android NDK (r24)...
       uses: nttld/setup-ndk@v1.2.0
