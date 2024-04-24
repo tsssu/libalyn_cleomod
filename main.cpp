@@ -27,38 +27,6 @@ BEGIN_DEPLIST()
     ADD_DEPENDENCY_VER(net.rusjj.aml, 1.2.1)
 END_DEPLIST()
 
-/*
-inline size_t __strlen(const char *str)
-{
-    const char* s = str;
-    while(*s) ++s;
-    return (s - str);
-}
-inline bool __ispathdel(char s)
-{
-    return (s == '\\' || s == '/');
-}
-inline void __pathback(char *str)
-{
-    const char* s = str;
-    uint16_t i = 0;
-    while(*s) ++s;
-    while(s != str)
-    {
-        if(!__ispathdel(*(--s))) break;
-    }
-    while(s != str)
-    {
-        if(__ispathdel(*(--s)))
-        {
-            i = (uint16_t)(s - str);
-        }
-        else if(i != 0) break;
-    }
-    if(i > 0) str[i] = 0;
-}
-*/
-
 // Pointers
 void* pCLEO;
 uintptr_t nCLEOAddr;
@@ -214,7 +182,7 @@ void AddGXTLabel(const char* gxtLabel, const char* text);
 extern "C" void OnModPreLoad()
 {
     logger->SetTag("CLEO Mod");
-    pCfgCLEOLocation = cfg->Bind("CLEO_Location", "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game");
+    pCfgCLEOLocation = cfg->Bind("CLEO_Location", "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
     pCfgCLEORedArrow = cfg->Bind("CLEO_RedArrow", true);
     pCfgCLEOMenuColor = cfg->Bind("CLEO_MenuColor", "55 127 175 150");
     pCfgCLEOMenuArrowColor = cfg->Bind("CLEO_MenuArrowColor", "55 127 175 100");
@@ -251,12 +219,10 @@ extern "C" void OnModPreLoad()
 
     char tmp[256];
     snprintf(tmp, sizeof(tmp), "%s", pCfgCLEOLocation->GetString());
-    //__pathback(tmp);
-
     setenv("EXTERNAL_STORAGE", tmp, 1);
-    snprintf(tmp, sizeof(tmp), "%s/cleo", tmp);
     mkdir(tmp, 0777);
 
+    // load directly
     aml->Unprot(nCLEOAddr + 0x146A9, 11);
     uintptr_t cleoDir = nCLEOAddr + 0x146A9;
     *(char*)(cleoDir + 3) = '\0';
