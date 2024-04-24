@@ -250,8 +250,10 @@ extern "C" void OnModPreLoad()
     char tmp[512];
     snprintf(tmp, sizeof(tmp), "%s", pCfgCLEOLocation->GetString());
     __pathback(tmp);
-    setenv("EXTERNAL_STORAGE", tmp, 1);
+    //setenv("EXTERNAL_STORAGE", tmp, 1);
     mkdir(tmp, 0777);
+    logger->info(pCfgCLEOLocation->GetString());
+
 
     aml->Unprot(nCLEOAddr + 0x146A9, 11);
     uintptr_t cleoDir = nCLEOAddr + 0x146A9;
