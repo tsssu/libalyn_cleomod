@@ -212,7 +212,7 @@ void AddGXTLabel(const char* gxtLabel, const char* text);
 extern "C" void OnModPreLoad()
 {
     logger->SetTag("CLEO Mod");
-    pCfgCLEOLocation = cfg->Bind("CLEO_Location", "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game");
+    pCfgCLEOLocation = cfg->Bind("CLEO_Location", "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
     pCfgCLEORedArrow = cfg->Bind("CLEO_RedArrow", true);
     pCfgCLEOMenuColor = cfg->Bind("CLEO_MenuColor", "55 127 175 150");
     pCfgCLEOMenuArrowColor = cfg->Bind("CLEO_MenuArrowColor", "55 127 175 100");
@@ -247,7 +247,7 @@ extern "C" void OnModPreLoad()
     cleo = (cleo_ifs_t*)(nCLEOAddr + 0x219AA8); // VTable = 0xC382
     nGameIdent = (eGameIdent*)(nCLEOAddr + 0x19298);
 
-    char tmp[256];
+    char tmp[512];
     snprintf(tmp, sizeof(tmp), "%s", pCfgCLEOLocation->GetString());
     __pathback(tmp);
     setenv("EXTERNAL_STORAGE", tmp, 1);
