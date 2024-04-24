@@ -6,7 +6,7 @@ if (-not ($PSVersionTable.PSEdition -eq "Core")) {
     $buildScript += ".cmd"
 }
 
-Write-Output "[BUILD] Starting NDK..."
+Write-Output "[BUILD] Starting the NDK..."
 & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk NDK_DEBUG=0 -j4
 Write-Output "[BUILD] Done!"
 
