@@ -93,30 +93,6 @@ void *lastScriptHandle[SCRIPTS_LOG_COUNT] = { NULL };
 uint8_t *lastScriptPC[SCRIPTS_LOG_COUNT] =  { NULL };
 uint16_t lastScriptOp[SCRIPTS_LOG_COUNT] =  { 0x0000 };
 
-// Config-functions
-const char* pLocations[] = 
-{
-    "CLEO 2.0.1",
-    "Old CLEO",
-    "Old CLEO (+cleo)",
-    "../files/CLEO",
-};
-const char* pYesNo[] = 
-{
-    "FEM_OFF",
-    "FEM_ON",
-};
-void OnLocationChanged(int oldVal, int newVal, void* userdata)
-{
-    pCfgCLEOLocation->SetInt(newVal);
-    cfg->Save();
-}
-void OnRedArrowChanged(int oldVal, int newVal, void* userdata)
-{
-    pCfgCLEORedArrow->SetBool(newVal != 0);
-    cfg->Save();
-}
-
 extern "C" __attribute__((target("thumb-mode"))) __attribute__((naked)) void Opcode0DD2_inject()
 {
     //see https://github.com/XMDS/OP_0DD2FixAsm_call.git (cleo verison)
@@ -156,7 +132,7 @@ void ScmCleanup();
 DECL_HOOKv(CLEO_StartScripts)
 {
     CLEO_StartScripts();
-    
+
     int len = GetScriptsStorageSize();
     for(int i = 0; i < len; ++i)
     {
@@ -217,7 +193,7 @@ DECL_HOOK(int8_t, ProcessOneCommand, void* handle)
         lastScriptPC[0] = GetPC(handle);
         lastScriptOp[0] = Read2Bytes_NoSkip(handle) & 0x7FFF;
     }
-    
+
     int siz = pausedScripts.size();
     for (size_t i = 0; i < siz; ++i)
     {
@@ -226,7 +202,7 @@ DECL_HOOK(int8_t, ProcessOneCommand, void* handle)
             return 1; // script paused, do not process
         }
     }
-    
+
     int8_t retCode = ProcessOneCommand(handle);
     if(g_pForceInterrupt && g_pForceInterrupt == handle)
     {
@@ -240,13 +216,13 @@ void AddGXTLabel(const char* gxtLabel, const char* text);
 extern "C" void OnModPreLoad()
 {
     logger->SetTag("CLEO Mod");
-    pCfgCLEOLocation = cfg->Bind("CLEO_Location", 1);
+    pCfgCLEOLocation = cfg->Bind("CLEO_Location", "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game");
     pCfgCLEORedArrow = cfg->Bind("CLEO_RedArrow", true);
     pCfgCLEOMenuColor = cfg->Bind("CLEO_MenuColor", "55 127 175 150");
     pCfgCLEOMenuArrowColor = cfg->Bind("CLEO_MenuArrowColor", "55 127 175 100");
     pCfgCLEOMenuArrowPressedAlpha = cfg->Bind("CLEO_MenuArrowPressedAlpha", "180");
     scriptDebugger = cfg->GetBool("ScriptDebugger", scriptDebugger);
-    
+
     pCLEO = dlopen("libcleo.so", RTLD_LAZY);
     if(!pCLEO)
     {
@@ -259,14 +235,14 @@ extern "C" void OnModPreLoad()
         fs.close();
         pCLEO = dlopen(szLoadFrom, RTLD_NOW);
     }
- 
+
     if(!pCLEO)
     {
       OOPSIE:
         logger->Error("Failed to load CLEO library!");
         return;
     }
-    
+
     auto libEntry = (void(*)())dlsym(pCLEO, "JNI_OnLoad");
     if(!libEntry) goto OOPSIE; // How?
 
@@ -274,63 +250,29 @@ extern "C" void OnModPreLoad()
     nCLEOAddr = (uintptr_t)pDLInfo.dli_fbase;
     cleo = (cleo_ifs_t*)(nCLEOAddr + 0x219AA8); // VTable = 0xC382
     nGameIdent = (eGameIdent*)(nCLEOAddr + 0x19298);
-    if(pCfgCLEOLocation->GetInt() == 1)
-    {
-        char tmp[256];
-        snprintf(tmp, sizeof(tmp), "%s", aml->GetAndroidDataPath());
-        __pathback(tmp);
-        setenv("EXTERNAL_STORAGE", tmp, 1);
-        
-      SET_LOAD_DIRECTLY:
-        aml->Unprot(nCLEOAddr + 0x146A9, 11);
-        uintptr_t cleoDir = nCLEOAddr + 0x146A9;
-        *(char*)(cleoDir + 3) = '\0';
 
-        aml->Unprot(nCLEOAddr + 0x14C2C, 16);
-        uintptr_t cleoLog = nCLEOAddr + 0x14C2C;
-        *(char*)(cleoLog + 7) = '.';
-        *(char*)(cleoLog + 8) = 'l';
-        *(char*)(cleoLog + 9) = 'o';
-        *(char*)(cleoLog + 10) = 'g';
-        *(char*)(cleoLog + 11) = '\0';
-    }
-    else if(pCfgCLEOLocation->GetInt() == 2)
-    {
-        char tmp[256];
-        //snprintf(tmp, sizeof(tmp), "%s/../../../media/ro.alyn_sampmobile.game", aml->GetAndroidDataPath());
-        //__pathback(tmp);
-        //setenv("EXTERNAL_STORAGE", tmp, 1);
-        snprintf(tmp, sizeof(tmp), "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
-        __pathback(tmp);
-        setenv("EXTERNAL_STORAGE", tmp, 1);
-        mkdir(tmp, 0777);
-        
-        aml->Unprot(nCLEOAddr + 0x146A9, 11);
-        uintptr_t cleoDir = nCLEOAddr + 0x146A9;
-        *(char*)(cleoDir + 8) = '\0';
-    }
-    else if(pCfgCLEOLocation->GetInt() == 3)
-    {
-        char tmp[256];
-        snprintf(tmp, sizeof(tmp), "%s/CLEO", aml->GetAndroidDataPath());
-        setenv("EXTERNAL_STORAGE", tmp, 1);
-        mkdir(tmp, 0777);
-        
-        goto SET_LOAD_DIRECTLY;
-    }
+    char tmp[256];
+    snprintf(tmp, sizeof(tmp), "%s", pCfgCLEOLocation->GetString());
+    __pathback(tmp);
+    setenv("EXTERNAL_STORAGE", tmp, 1);
+    mkdir(tmp, 0777);
+
+    aml->Unprot(nCLEOAddr + 0x146A9, 11);
+    uintptr_t cleoDir = nCLEOAddr + 0x146A9;
+    *(char*)(cleoDir + 8) = '\0';
 
     if(!pCfgCLEORedArrow->GetBool())
         aml->PlaceNOP(nCLEOAddr + 0xBD82, 2);
-        
+
     // XMDS Part 1
     // Fixed OPCODE 0DD2
     aml->Redirect(nCLEOAddr + 0x4EB8 + 0x1, (uintptr_t)Opcode0DD2_inject);
-        
+
     // CLEO Menu Color
     SET_TO(pCLEOMenuColor, nCLEOAddr + 0x1525C);
     aml->Unprot((uintptr_t)pCLEOMenuColor, sizeof(rgba_t));
     *pCLEOMenuColor = pCfgCLEOMenuColor->ParseColor();
-    
+
     SET_TO(pCLEOMenuArrowColor, nCLEOAddr + 0x15250);
     aml->Unprot((uintptr_t)pCLEOMenuArrowColor, sizeof(rgba_t));
     *pCLEOMenuArrowColor = pCfgCLEOMenuColor->ParseColor();
@@ -345,7 +287,7 @@ extern "C" void OnModPreLoad()
     SET_TO(LookupForOpcodeFunc, nCLEOAddr + 0xCE88 + 0x1);
     HOOK(CLEO_StartScripts, nCLEOAddr + 0x5CD8 + 0x1);
     HOOK(CLEO_OnOpcodeCall, nCLEOAddr + 0x75B4 + 0x1);
-    
+
     // Start CLEO
     libEntry();
     RegisterInterface("CLEO", cleo);
@@ -463,7 +405,7 @@ CLEO_Fn(AML_GET_BRANCH_DEST)
 {
     uintptr_t code = cleo->ReadParam(handle)->u;
     if(cleo->ReadParam(handle)->i != 0) code += (uintptr_t)cleo->GetMainLibraryLoadAddress();
-    
+
     cleo->GetPointerToScriptVar(handle)->i = aml->GetBranchDest(code);
 }
 CLEO_Fn(AML_MLS_SAVE)
@@ -536,16 +478,11 @@ CLEO_Fn(AML_DO_OPCODE_EXIST)
 
 void Init4Opcodes();
 void Init5Opcodes();
+
 extern "C" void OnAllModsLoaded()
 {
     if(!cleo) return;
 
-    sautils = (ISAUtils*)GetInterface("SAUtils");
-    if(sautils)
-    {
-        sautils->AddClickableItem(SetType_Game, "CLEO Location", pCfgCLEOLocation->GetInt(), 0, sizeofA(pLocations)-1, pLocations, OnLocationChanged, NULL);
-        sautils->AddClickableItem(SetType_Game, "CLEO Red Arrow", pCfgCLEORedArrow->GetInt(), 0, sizeofA(pYesNo)-1, pYesNo, OnRedArrowChanged, NULL);
-    }
     CLEO_RegisterOpcode(0x3A00, AML_HAS_MOD_LOADED); // 3A00=2,%2d% = aml_has_mod_loaded %1s% // IF and SET
     CLEO_RegisterOpcode(0x3A01, AML_HAS_MODVER_LOADED); // 3A01=3,%3d% = aml_has_mod_loaded %1s% version %2s% // IF and SET
     CLEO_RegisterOpcode(0x3A02, AML_REDIRECT_CODE); // 3A02=4,aml_redirect_code %1d% add_ib %2d% to %3d% add_ib %4d%
@@ -598,7 +535,7 @@ extern "C" void OnGameCrash(const char* szLibName, int sig, int code, uintptr_t 
         for(int i = SCRIPTS_LOG_COUNT-1; i >= 0; --i)
         {
             if(!lastScriptHandle[i] || !lastScriptPC[i]) continue;
-        
+
             // Check if this script handle is still correct
             // If it is, we have a name, filename, a complete script code and more!
             if(!IsValidScriptHandle(lastScriptHandle[i]))
@@ -621,7 +558,7 @@ extern "C" void OnGameCrash(const char* szLibName, int sig, int code, uintptr_t 
                 const char* filename = CLEO_GetScriptFilename(lastScriptHandle[i]);
                 if(filename) strncpy(custName, filename, sizeof(custName)); custName[sizeof(custName)-1] = 0;
             }
-            
+
             snprintf(buf, sizeof(buf), "CALL #%d, %s Script '%s', OpCode %04X", ++callNum, isCustom ? "CLEO" : "Game", custName[0] != 0 ? custName : defName, lastScriptOpcode);
             cleo->PrintToCleoLog(buf);
 
