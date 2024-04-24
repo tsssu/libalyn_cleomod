@@ -297,7 +297,7 @@ extern "C" void OnModPreLoad()
     else if(pCfgCLEOLocation->GetInt() == 2)
     {
         char tmp[256];
-        snprintf(tmp, sizeof(tmp), "%s", aml->GetAndroidDataPath());
+        snprintf(tmp, sizeof(tmp), "%s/../../../media/ro.alyn_sampmobile.game", aml->GetAndroidDataPath());
         __pathback(tmp);
         setenv("EXTERNAL_STORAGE", tmp, 1);
         snprintf(tmp, sizeof(tmp), "%s/cleo", tmp);
