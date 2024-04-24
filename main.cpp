@@ -296,11 +296,13 @@ extern "C" void OnModPreLoad()
     }
     else if(pCfgCLEOLocation->GetInt() == 2)
     {
-        char tmp[512];
+        char tmp[256];
         //snprintf(tmp, sizeof(tmp), "%s/../../../media/ro.alyn_sampmobile.game", aml->GetAndroidDataPath());
         //__pathback(tmp);
         //setenv("EXTERNAL_STORAGE", tmp, 1);
-        snprintf(tmp, sizeof(tmp), "storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
+        snprintf(tmp, sizeof(tmp), "/storage/emulated/0/Android/media/ro.alyn_sampmobile.game/cleo");
+        __pathback(tmp)
+        setenv("EXTERNAL_STORAGE", tmp, 1);
         mkdir(tmp, 0777);
         
         aml->Unprot(nCLEOAddr + 0x146A9, 11);
